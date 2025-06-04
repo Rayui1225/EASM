@@ -1,8 +1,9 @@
 package scheduler
 
 import (
+	"easm-backend/internal/shared"
+
 	"github.com/RichardKnop/machinery/v2"
-	"github.com/RichardKnop/machinery/v2/config"
 )
 
 // Service represents the scheduler service
@@ -12,24 +13,14 @@ type Service struct {
 
 // NewService creates a new scheduler service
 func NewService() (*Service, error) {
-	// Create server config
-	cnf := &config.Config{
-		DefaultQueue:    "easm_tasks",
-		ResultsExpireIn: 3600, // 1 hour
-		Redis: &config.RedisConfig{
-			MaxIdle:                3,
-			IdleTimeout:            240,
-			ReadTimeout:            15,
-			WriteTimeout:           15,
-			ConnectTimeout:         15,
-			NormalTasksPollPeriod:  1000,
-			DelayedTasksPollPeriod: 5000,
-		},
-	}
+	// Use shared configuration from shared package
+	cnf := shared.GetMachineryConfig()
+	// Create a new server instance with all required parameters
+	// Passing nil for broker, backend, and lock will make Machinery create them based on the config
+	server := machinery.NewServer(cnf, nil, nil, nil)
 
-	// Create server instance
-	server, err := machinery.NewServer(cnf)
-	if err != nil {
+	// Register default tasks (you can add specific tasks later)
+	if err := server.RegisterTasks(map[string]interface{}{}); err != nil {
 		return nil, err
 	}
 

@@ -1,0 +1,188 @@
+import React, { useState } from 'react';
+import { 
+  FaBell, 
+  FaExclamationTriangle, 
+  FaInfoCircle, 
+  FaCheckCircle,
+  FaServer,
+  FaShieldAlt
+} from 'react-icons/fa';
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'warning' | 'info' | 'success';
+  timestamp: string;
+  read: boolean;
+  source: string;
+}
+
+const NotificationCenter: React.FC = () => {
+  // Mock notifications data
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: '1',
+      title: 'Critical Vulnerability Detected',
+      message: 'A critical vulnerability (CVE-2025-1234) was detected on web-server-1.',
+      type: 'warning',
+      timestamp: '2025-05-07T08:30:00Z',
+      read: false,
+      source: 'Vulnerability Scanner'
+    },
+    {
+      id: '2',
+      title: 'New Asset Discovered',
+      message: 'New cloud resource discovered: s3-backup-bucket-prod',
+      type: 'info',
+      timestamp: '2025-05-06T22:15:00Z',
+      read: false,
+      source: 'Asset Discovery'
+    },
+    {
+      id: '3',
+      title: 'Scan Completed',
+      message: 'External network scan completed successfully.',
+      type: 'success',
+      timestamp: '2025-05-06T18:42:00Z',
+      read: true,
+      source: 'Scan Manager'
+    },
+    {
+      id: '4',
+      title: 'TLS Certificate Expiring',
+      message: 'The TLS certificate for api.example.com will expire in 15 days.',
+      type: 'warning',
+      timestamp: '2025-05-06T12:10:00Z',
+      read: true,
+      source: 'Certificate Monitor'
+    },
+    {
+      id: '5',
+      title: 'Cloud Misconfiguration',
+      message: 'Public S3 bucket detected with sensitive data: analytics-bucket-123',
+      type: 'warning',
+      timestamp: '2025-05-05T16:22:00Z',
+      read: true,
+      source: 'Cloud Security Scanner'
+    }
+  ]);
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleNotifications = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const markAsRead = (id: string) => {
+    setNotifications(
+      notifications.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true } 
+          : notification
+      )
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(
+      notifications.map(notification => ({ ...notification, read: true }))
+    );
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'warning':
+        return <FaExclamationTriangle className="text-warning" />;
+      case 'success':
+        return <FaCheckCircle className="text-success" />;
+      case 'info':
+      default:
+        return <FaInfoCircle className="text-info" />;
+    }
+  };
+
+  const getNotificationSourceIcon = (source: string) => {
+    if (source.toLowerCase().includes('vulnerability')) {
+      return <FaShieldAlt className="text-danger" />;
+    } else if (source.toLowerCase().includes('asset')) {
+      return <FaServer className="text-primary" />;
+    } else {
+      return <FaInfoCircle className="text-secondary" />;
+    }
+  };
+  const unreadCount = notifications.filter(n => !n.read).length;
+  return (
+    <div className="notification-center">
+      <button 
+        className="btn btn-link text-white position-relative" 
+        onClick={toggleNotifications}
+        aria-expanded={isOpen}
+      >
+        <FaBell size={18} />
+        {unreadCount > 0 && (
+          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {unreadCount}
+            <span className="visually-hidden">unread notifications</span>
+          </span>
+        )}
+      </button>
+
+      {isOpen && (
+        <div className="notification-dropdown bg-white rounded shadow">
+          <div className="dropdown-header d-flex justify-content-between align-items-center">
+            <h6 className="mb-0">Notifications</h6>
+            {unreadCount > 0 && (
+              <button 
+                className="btn btn-sm btn-link text-decoration-none" 
+                onClick={markAllAsRead}
+              >
+                Mark all as read
+              </button>
+            )}
+          </div>
+        <div className="notification-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+          {notifications.length === 0 ? (
+            <div className="text-center p-3">
+              <p className="text-muted mb-0">No notifications</p>
+            </div>
+          ) : (
+            notifications.map(notification => (
+              <div 
+                key={notification.id} 
+                className={`dropdown-item notification-item p-2 ${!notification.read ? 'unread bg-light' : ''}`}
+                onClick={() => markAsRead(notification.id)}
+              >
+                <div className="d-flex">
+                  <div className="me-2 pt-1">
+                    {getNotificationIcon(notification.type)}
+                  </div>
+                  <div className="flex-grow-1">
+                    <div className="d-flex justify-content-between">
+                      <h6 className="mb-0 text-truncate" style={{ maxWidth: '200px' }}>{notification.title}</h6>
+                      <small className="text-muted ms-2">{new Date(notification.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                    </div>
+                    <p className="mb-1 small text-truncate">{notification.message}</p>
+                    <div className="d-flex align-items-center">
+                      <small className="text-muted d-flex align-items-center">
+                        <span className="me-1">{getNotificationSourceIcon(notification.source)}</span>
+                        {notification.source}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="dropdown-footer border-top p-2">
+          <div className="text-center">
+            <a href="#" className="small text-decoration-none">View all notifications</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NotificationCenter;
