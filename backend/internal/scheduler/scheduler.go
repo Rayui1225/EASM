@@ -1,6 +1,8 @@
 package scheduler
 
 import (
+	"time"
+
 	"github.com/RichardKnop/machinery/v2"
 	"github.com/RichardKnop/machinery/v2/config"
 )
@@ -14,16 +16,18 @@ type Service struct {
 func NewService() (*Service, error) {
 	// Create server config
 	cnf := &config.Config{
+		Broker:          "redis://localhost:6379",
+		ResultBackend:   "redis://localhost:6379",
 		DefaultQueue:    "easm_tasks",
 		ResultsExpireIn: 3600, // 1 hour
 		Redis: &config.RedisConfig{
 			MaxIdle:                3,
-			IdleTimeout:            240,
-			ReadTimeout:            15,
-			WriteTimeout:           15,
-			ConnectTimeout:         15,
-			NormalTasksPollPeriod:  1000,
-			DelayedTasksPollPeriod: 5000,
+			IdleTimeout:            240 * time.Second,
+			ReadTimeout:            15 * time.Second,
+			WriteTimeout:           15 * time.Second,
+			ConnectTimeout:         15 * time.Second,
+			NormalTasksPollPeriod:  1000 * time.Millisecond,
+			DelayedTasksPollPeriod: 5 * time.Second,
 		},
 	}
 
