@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"easm/backend/pkg/config"
+	"easm-backend/pkg/config"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

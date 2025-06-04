@@ -43,7 +43,8 @@ func NewWorker() (*Worker, error) {
 }
 
 // RegisterTasks registers all available task handlers
-func (w *Worker) RegisterTasks() error { // Register task handlers using constant task names
+func (w *Worker) RegisterTasks() error {
+	// Register task handlers using constant task names
 	tasks := map[string]interface{}{
 		shared.TaskNames.ScanTarget:        w.scanTargetTask,
 		shared.TaskNames.VulnerabilityScan: w.vulnerabilityScanTask,

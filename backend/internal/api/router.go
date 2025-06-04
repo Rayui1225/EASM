@@ -24,7 +24,7 @@ func NewRouter() *gin.Engine {
 
 	// Routes
 	r.GET("/api/health", healthCheckHandler)
-
+	
 	// API routes here
 	v1 := r.Group("/api/v1")
 	{
